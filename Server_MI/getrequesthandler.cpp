@@ -1,8 +1,7 @@
 #include "getrequesthandler.h"
 
-GetRequestHandler::GetRequestHandler(QSqlDatabase *db, Request *request):_db(db),Request_(request)
-{
-QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
+GetRequestHandler::GetRequestHandler(QSqlDatabase *db, Request *request):_db(db),Request_(request){
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 }
 
 QString GetRequestHandler::stationHandler(){
@@ -48,7 +47,7 @@ QString GetRequestHandler::stationHandler(){
 
     QJsonArray AGZSs;
     QSqlQuery* q = new QSqlQuery(*_db);
-    if (q->exec("SELECT AGZSName,AGZS,VCode,Id,Adress,Location_x,Location_y,ColumnsCount FROM [agzs].[dbo].PR_AGZSData")) {
+    if (q->exec("SELECT AGZSName, AGZS, VCode, Id, Adress, Location_x, Location_y, ColumnsCount, AGZSL, AGZSP FROM [agzs].[dbo].PR_AGZSData")) {
         while (q->next()) {
             QJsonObject AGZS;
             AGZS["Id"] = q->value(3).toString();
@@ -63,7 +62,7 @@ QString GetRequestHandler::stationHandler(){
                     qDebug()<<"Error: setting file is already open";
             } else
                 qDebug()<<"Error: setting file not found";
-            dbLocal.setDatabaseName(QString("DRIVER={SQL Server};SERVER=%1;DATABASE=%2;Persist Security Info=true;uid=%3;pwd=%4").arg(q->value(x).toString(),setting[1],setting[2],setting[3]));
+            dbLocal.setDatabaseName(QString("DRIVER={SQL Server};SERVER=%1;DATABASE=%2;Persist Security Info=true;uid=%3;pwd=%4").arg(q->value(8).toString(),setting[1],setting[2],q->value(9).toString()));
             if(dbLocal.open()){
                 AGZS["Enable"] = "true";
             }
@@ -74,8 +73,8 @@ QString GetRequestHandler::stationHandler(){
             AGZS["Name"] = q->value(0).toString();
             AGZS["Adress"] = q->value(4).toString();
             QJsonObject Location;
-            Location["Lon"] = q->value(5).toString();
-            Location["Lat"] = q->value(6).toString();
+            Location["Lon"] = q->value(6).toString().replace(",",".");
+            Location["Lat"] = q->value(5).toString().replace(",",".");
             AGZS["Location"] = Location;
             //Columns
             QJsonObject Columns;
@@ -250,91 +249,91 @@ QString GetRequestHandler::priceHandler(){
                 QJsonObject FuelPrice;
                 FuelPrice["ProductId"]="diesel";
                 FuelPrice["StationId"]=q->value(1).toString();
-                FuelPrice["Price"]=q->value(4).toInt();
+                FuelPrice["Price"]=q->value(4).toDouble();
                 prices.append(FuelPrice);
             }
             if(q->value(5).toInt()>0){
                 QJsonObject FuelPrice;
                 FuelPrice["ProductId"]="diesel_premium";
                 FuelPrice["StationId"]=q->value(1).toString();
-                FuelPrice["Price"]=q->value(5).toInt();
+                FuelPrice["Price"]=q->value(5).toDouble();
                 prices.append(FuelPrice);
             }
             if(q->value(6).toInt()>0){
                 QJsonObject FuelPrice;
                 FuelPrice["ProductId"]="a80";
                 FuelPrice["StationId"]=q->value(1).toString();
-                FuelPrice["Price"]=q->value(6).toInt();
+                FuelPrice["Price"]=q->value(6).toDouble();
                 prices.append(FuelPrice);
             }
             if(q->value(7).toInt()>0){
                 QJsonObject FuelPrice;
                 FuelPrice["ProductId"]="a92";
                 FuelPrice["StationId"]=q->value(1).toString();
-                FuelPrice["Price"]=q->value(7).toInt();
+                FuelPrice["Price"]=q->value(7).toDouble();
                 prices.append(FuelPrice);
             }
             if(q->value(8).toInt()>0){
                 QJsonObject FuelPrice;
                 FuelPrice["ProductId"]="a92_premium";
                 FuelPrice["StationId"]=q->value(1).toString();
-                FuelPrice["Price"]=q->value(8).toInt();
+                FuelPrice["Price"]=q->value(8).toDouble();
                 prices.append(FuelPrice);
             }
             if(q->value(9).toInt()>0){
                 QJsonObject FuelPrice;
                 FuelPrice["ProductId"]="a95";
                 FuelPrice["StationId"]=q->value(1).toString();
-                FuelPrice["Price"]=q->value(9).toInt();
+                FuelPrice["Price"]=q->value(9).toDouble();
                 prices.append(FuelPrice);
             }
             if(q->value(10).toInt()>0){
                 QJsonObject FuelPrice;
                 FuelPrice["ProductId"]="a95_premium";
                 FuelPrice["StationId"]=q->value(1).toString();
-                FuelPrice["Price"]=q->value(10).toInt();
+                FuelPrice["Price"]=q->value(10).toDouble();
                 prices.append(FuelPrice);
             }
             if(q->value(11).toInt()>0){
                 QJsonObject FuelPrice;
                 FuelPrice["ProductId"]="a98";
                 FuelPrice["StationId"]=q->value(1).toString();
-                FuelPrice["Price"]=q->value(11).toInt();
+                FuelPrice["Price"]=q->value(11).toDouble();
                 prices.append(FuelPrice);
             }
             if(q->value(12).toInt()>0){
                 QJsonObject FuelPrice;
                 FuelPrice["ProductId"]="a98_premium";
                 FuelPrice["StationId"]=q->value(1).toString();
-                FuelPrice["Price"]=q->value(12).toInt();
+                FuelPrice["Price"]=q->value(12).toDouble();
                 prices.append(FuelPrice);
             }
             if(q->value(13).toInt()>0){
                 QJsonObject FuelPrice;
                 FuelPrice["ProductId"]="a100";
                 FuelPrice["StationId"]=q->value(1).toString();
-                FuelPrice["Price"]=q->value(13).toInt();
+                FuelPrice["Price"]=q->value(13).toDouble();
                 prices.append(FuelPrice);
             }
             if(q->value(14).toInt()>0){
                 QJsonObject FuelPrice;
                 FuelPrice["ProductId"]="a100_premium";
                 FuelPrice["StationId"]=q->value(1).toString();
-                FuelPrice["Price"]=q->value(14).toInt();
+                FuelPrice["Price"]=q->value(14).toDouble();
                 prices.append(FuelPrice);
             }
             if(q->value(15).toInt()>0){
                 QJsonObject FuelPrice;
                 FuelPrice["ProductId"]="propane";
                 FuelPrice["StationId"]=q->value(1).toString();
-                FuelPrice["Price"]=q->value(15).toInt();
+                FuelPrice["Price"]=q->value(15).toDouble();
                 prices.append(FuelPrice);
             }
             if(q->value(16).toInt()>0){
                 QJsonObject FuelPrice;
                 FuelPrice["ProductId"]="metan";
                 FuelPrice["StationId"]=q->value(1).toString();
-                FuelPrice["Price"]=q->value(16).toInt();
+                FuelPrice["Price"]=q->value(16).toDouble();
                 prices.append(FuelPrice);
             }
         }
@@ -347,7 +346,7 @@ QString GetRequestHandler::priceHandler(){
 
 QString GetRequestHandler::pingHandler(QString a_station, QString a_column){
     QSqlQuery* q = new QSqlQuery(*_db);
-    if (q->exec("SELECT AGZSName,AGZS,VCode,Id,Adress,Location_x,Location_y,ColumnsCount FROM [agzs].[dbo].PR_AGZSData where Id=\""+a_station+"\"")) {
+    if (q->exec("SELECT AGZSName, AGZS, VCode, Id, Adress, Location_x, Location_y, ColumnsCount, AGZSL, AGZSP FROM [agzs].[dbo].PR_AGZSData where Id=\""+a_station+"\"")) {
         while (q->next()) {
             QSqlDatabase dbLocal = QSqlDatabase::addDatabase("QODBC3");
             QStringList setting;
@@ -359,7 +358,7 @@ QString GetRequestHandler::pingHandler(QString a_station, QString a_column){
                     qDebug()<<"Error: setting file is already open";
             } else
                 qDebug()<<"Error: setting file not found";
-            dbLocal.setDatabaseName(QString("DRIVER={SQL Server};SERVER=%1;DATABASE=%2;Persist Security Info=true;uid=%3;pwd=%4").arg(q->value(x).toString(),setting[1],setting[2],setting[3]));
+            dbLocal.setDatabaseName(QString("DRIVER={SQL Server};SERVER=%1;DATABASE=%2;Persist Security Info=true;uid=%3;pwd=%4").arg(q->value(8).toString(),setting[1],setting[2],q->value(9).toString()));
             if(dbLocal.open()){
                 AGZS["Enable"] = "true";
             }

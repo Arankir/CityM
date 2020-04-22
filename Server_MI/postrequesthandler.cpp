@@ -1,7 +1,6 @@
 #include "postrequesthandler.h"
 
-PostRequestHandler::PostRequestHandler(QSqlDatabase *db, Request *request):DB_(db),Request_(request)
-{
+PostRequestHandler::PostRequestHandler(QSqlDatabase *db, Request *request):DB_(db),Request_(request){
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 }
 
@@ -25,12 +24,92 @@ QString PostRequestHandler::orderHandler(QString post)
 
     if(post != ""){
         QJsonDocument doc = QJsonDocument::fromJson(post.toLocal8Bit());
-        QJsonObject obj = doc.object();
-        //QJsonObject user = obj["Data"].toObject();
-
         QSqlQuery *query = new QSqlQuery(*DB_);
-        query->exec("SELECT TOP 1 AGZSName,AGZS,VCode,Id,Adress,Location_x,Location_y,ColumnsCount FROM [agzs].[dbo].PR_AGZSData where Id=\""+doc.object().value("StationId").toString()+"\"");
+        query->exec("SELECT TOP 1 AGZSName, AGZS, VCode, Id, Adress, Location_x, Location_y, ColumnsCount, AGZSL, AGZSP "
+                    ",[diesel_price] ,[diesel_premium_price] ,[a80_price] ,[a92_price] ,[a92_premium_price] ,[a95_price] "
+                    ",[a95_premium_price] ,[a98_price] ,[a98_premium_price] ,[a100_price] ,[a100_premium_price] ,[propane_price] "
+                    ",[metan_price] FROM [agzs].[dbo].PR_AGZSData where Id='"+doc.object().value("StationId").toString()+"' order by CDate desc");
         if(query->next()){
+            if(doc.object().value("FuelId").toString()=="diesel"){
+                if(doc.object().value("FriceFuel").toString()!=query->value(10).toString()){
+                    delete query;
+                    qDebug()<<"price error on "+query->value(0).toString();
+                    return QString("HTTP/1.1 402 \r\n\r\nBad request");
+                }
+            } else if(doc.object().value("FuelId").toString()=="diesel_premium"){
+                if(doc.object().value("FriceFuel").toString()!=query->value(11).toString()){
+                    delete query;
+                    qDebug()<<"price error on "+query->value(0).toString();
+                    return QString("HTTP/1.1 402 \r\n\r\nBad request");
+                }
+            } else if(doc.object().value("FuelId").toString()=="a80"){
+                if(doc.object().value("FriceFuel").toString()!=query->value(12).toString()){
+                    delete query;
+                    qDebug()<<"price error on "+query->value(0).toString();
+                    return QString("HTTP/1.1 402 \r\n\r\nBad request");
+                }
+            } else if(doc.object().value("FuelId").toString()=="a92"){
+                if(doc.object().value("FriceFuel").toString()!=query->value(13).toString()){
+                    delete query;
+                    qDebug()<<"price error on "+query->value(0).toString();
+                    return QString("HTTP/1.1 402 \r\n\r\nBad request");
+                }
+            } else if(doc.object().value("FuelId").toString()=="a92_premium"){
+                if(doc.object().value("FriceFuel").toString()!=query->value(14).toString()){
+                    delete query;
+                    qDebug()<<"price error on "+query->value(0).toString();
+                    return QString("HTTP/1.1 402 \r\n\r\nBad request");
+                }
+            } else if(doc.object().value("FuelId").toString()=="a95"){
+                if(doc.object().value("FriceFuel").toString()!=query->value(15).toString()){
+                    delete query;
+                    qDebug()<<"price error on "+query->value(0).toString();
+                    return QString("HTTP/1.1 402 \r\n\r\nBad request");
+                }
+            } else if(doc.object().value("FuelId").toString()=="a95_premium"){
+                if(doc.object().value("FriceFuel").toString()!=query->value(16).toString()){
+                    delete query;
+                    qDebug()<<"price error on "+query->value(0).toString();
+                    return QString("HTTP/1.1 402 \r\n\r\nBad request");
+                }
+            } else if(doc.object().value("FuelId").toString()=="a98"){
+                if(doc.object().value("FriceFuel").toString()!=query->value(17).toString()){
+                    delete query;
+                    qDebug()<<"price error on "+query->value(0).toString();
+                    return QString("HTTP/1.1 402 \r\n\r\nBad request");
+                }
+            } else if(doc.object().value("FuelId").toString()=="a98_premium"){
+                if(doc.object().value("FriceFuel").toString()!=query->value(18).toString()){
+                    delete query;
+                    qDebug()<<"price error on "+query->value(0).toString();
+                    return QString("HTTP/1.1 402 \r\n\r\nBad request");
+                }
+            } else if(doc.object().value("FuelId").toString()=="a100"){
+                if(doc.object().value("FriceFuel").toString()!=query->value(19).toString()){
+                    delete query;
+                    qDebug()<<"price error on "+query->value(0).toString();
+                    return QString("HTTP/1.1 402 \r\n\r\nBad request");
+                }
+            } else if(doc.object().value("FuelId").toString()=="a100_premium"){
+                if(doc.object().value("FriceFuel").toString()!=query->value(20).toString()){
+                    delete query;
+                    qDebug()<<"price error on "+query->value(0).toString();
+                    return QString("HTTP/1.1 402 \r\n\r\nBad request");
+                }
+            } else if(doc.object().value("FuelId").toString()=="propane"){
+                if(doc.object().value("FriceFuel").toString()!=query->value(21).toString()){
+                    delete query;
+                    qDebug()<<"price error on "+query->value(0).toString();
+                    return QString("HTTP/1.1 402 \r\n\r\nBad request");
+                }
+            } else if(doc.object().value("FuelId").toString()=="metan"){
+                if(doc.object().value("FriceFuel").toString()!=query->value(22).toString()){
+                    delete query;
+                    qDebug()<<"price error on "+query->value(0).toString();
+                    return QString("HTTP/1.1 402 \r\n\r\nBad request");
+                }
+            }
+
             QSqlDatabase dbLocal = QSqlDatabase::addDatabase("QODBC3");
             QStringList setting;
             if(QFile::exists("Setting.txt")){
@@ -41,49 +120,99 @@ QString PostRequestHandler::orderHandler(QString post)
                     qDebug()<<"Error: setting file is already open";
             } else
                 qDebug()<<"Error: setting file not found";
-            dbLocal.setDatabaseName(QString("DRIVER={SQL Server};SERVER=%1;DATABASE=%2;Persist Security Info=true;uid=%3;pwd=%4").arg(query->value(x).toString(),setting[1],setting[2],setting[3]));
+            dbLocal.setDatabaseName(QString("DRIVER={SQL Server};SERVER=%1;DATABASE=%2;Persist Security Info=true;uid=%3;pwd=%4").arg(query->value(8).toString(),setting[1],setting[2],query->value(9).toString()));
             if(dbLocal.open()){
                 QSqlQuery *query2 = new QSqlQuery(dbLocal);
-                query2->exec("SELECT TOP 1 VCode, CDate FROM Таблица order by CDate desc");
+                query2->exec("SELECT TOP 1 VCode, CDate FROM PR_APITransaction order by CDate desc");
                 if(query2->next()){
                     QSqlQuery *query3 = new QSqlQuery(dbLocal);
                     int fuelID=GetFuelID(doc.object().value("FuelId").toString());
                     //изменить таблицу
                     //изменить формат даты
-                    query3->exec("INSERT Таблица set CDate='"+QDateTime::currentDateTime().toString()+"' ,VCode="+query2->value(0).toString()+" ,"
-                                "AGZSName='"+query->value(0).toString()+"' ,AGZS="+query->value(1).toString()+" ,ID=\""+doc.object().value("Id").toString()+"\" ,"
-                                "DateCreateAPI='"+doc.object().value("DateCreate").toString()+"' ,OrderType='"+doc.object().value("OrderType").toString()+"' ,"
-                                "OrderVolume='"+doc.object().value("OrderVolume").toString()+"' ,StationId='"+doc.object().value("StationId").toString()+"' ,"
-                                "StationExtendedId='"+doc.object().value("StationExtendedId").toString()+"' ,ColumnId="+doc.object().value("ColumnId").toString()+" ,"
-                                "FuelIdAPI='"+doc.object().value("FuelId").toString()+"' , FuelId="+fuelID+" ,PriceFuel="+doc.object().value("PriceFuel").toString()+" ,"
-                                "Litre="+doc.object().value("Litre").toString()+" ,Sum="+doc.object().value("Sum").toString()+" ,"
-                                "Status='"+doc.object().value("Status").toString()+"' ,ContractId=\""+doc.object().value("ContractId").toString()+"\"");
+                    query3->exec("INSERT PR_APITransaction set AGZSName='"+query->value(0).toString()+"' ,AGZS="+query->value(1).toString()+" ,"
+                                "CDate='"+QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")+"' ,VCode="+query2->value(0).toString()+" ,APIID=\""+doc.object().value("Id").toString()+"\" ,"
+                                "APIDateCreateAPI='"+doc.object().value("DateCreate").toString()+"' ,APIOrderType='"+doc.object().value("OrderType").toString()+"' ,"
+                                "APIOrderVolume='"+doc.object().value("OrderVolume").toString()+"' ,APIStationId='"+doc.object().value("StationId").toString()+"' ,"
+                                "APIStationExtendedId='"+doc.object().value("StationExtendedId").toString()+"' ,APIColumnId="+doc.object().value("ColumnId").toString()+" ,"
+                                "APIFuelId='"+doc.object().value("FuelId").toString()+"' , FuelId="+fuelID+" ,APIPriceFuel="+doc.object().value("PriceFuel").toString()+" ,"
+                                "APILitre="+doc.object().value("Litre").toString()+" ,APISum="+doc.object().value("Sum").toString()+" ,"
+                                "APIStatus='"+doc.object().value("Status").toString()+"' ,APIContractId='"+doc.object().value("ContractId").toString()+"', agent='CityMobile', "
+                                "localState='0'");
+                    QSqlQuery *query4 = new QSqlQuery(*DB_);
+                    query4->exec("INSERT PR_APITransaction set AGZSName='"+query->value(0).toString()+"' ,AGZS="+query->value(1).toString()+" ,"
+                                "CDate='"+QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")+"' ,VCode="+query2->value(0).toString()+" ,APIID=\""+doc.object().value("Id").toString()+"\" ,"
+                                "APIDateCreateAPI='"+doc.object().value("DateCreate").toString()+"' ,APIOrderType='"+doc.object().value("OrderType").toString()+"' ,"
+                                "APIOrderVolume='"+doc.object().value("OrderVolume").toString()+"' ,APIStationId='"+doc.object().value("StationId").toString()+"' ,"
+                                "APIStationExtendedId='"+doc.object().value("StationExtendedId").toString()+"' ,APIColumnId="+doc.object().value("ColumnId").toString()+" ,"
+                                "APIFuelId='"+doc.object().value("FuelId").toString()+"' , FuelId="+fuelID+" ,APIPriceFuel="+doc.object().value("PriceFuel").toString()+" ,"
+                                "APILitre="+doc.object().value("Litre").toString()+" ,APISum="+doc.object().value("Sum").toString()+" ,"
+                                "APIStatus='"+doc.object().value("Status").toString()+"' ,APIContractId='"+doc.object().value("ContractId").toString()+"', agent='CityMobile', "
+                                "localState='0'");
+                    if(QFile::exists("Requests.txt")){
+                        QFile requestTransactionsVCode("Requests.txt");
+                        if (requestTransactionsVCode.open(QIODevice::Append)){
+                            QTextStream writeStream(&requestTransactionsVCode);
+                            writeStream<<query2->value(0).toString()+"\n";
+                            requestTransactionsVCode.close();
+                        } else
+                            qDebug()<<"Error: request file is already open";
+                    } else
+                        qDebug()<<"Error: request file not found";
+
                     qDebug()<<"lastError="+query3->lastError().text();
                     if(query3->lastError().text()=="")
                         qDebug()<<"Insert complete on "+query->value(0).toString();
                         //запустить функцию отслеживающую выполнение заправки
-                    else {
-                        qDebug()<<"Insert error on"+query->value(0).toString();
-                    }
+                    else
+                        qDebug()<<"Insert error on "+query->value(0).toString();
                     delete query3;
-                } else {
-                    qDebug()<<"Get last VCode error on"+query->value(0).toString();
-                }
+                } else
+                    qDebug()<<"Get last VCode error on "+query->value(0).toString();
                 delete query2;
-            }
-            else {
+            } else
                 qDebug()<<"db on "+query->value(0).toString()+" not open";
-            }
+            delete query;
+        } else {
+            delete query;
+            qDebug()<<query->value(0).toString()+" not found";
+            return QString("HTTP/1.1 400 \r\n\r\nBad request");
         }
-        delete query;
-    }
-    else return QString("NO");
+        qDebug()<<"Insert transaction";
+        return QString("HTTP/1.1 200 OK \r\n\r\n\r\n");
+    } else
+        qDebug()<<"Not insert transaction, post is empty";
+        return QString("HTTP/1.1 404 \r\n\r\nBad request");
 }
 
 int PostRequestHandler::GetFuelID(QString a_fuelIdAPI){
     //дописать
-    if(a_fuelIdAPI=="")
+    if(a_fuelIdAPI=="diesel")
+        return 32;
+    if(a_fuelIdAPI=="diesel_premium")
         return 0;
+    if(a_fuelIdAPI=="a80")
+        return 0;
+    if(a_fuelIdAPI=="a92")
+        return 3;
+    if(a_fuelIdAPI=="a92_premium")
+        return 0;
+    if(a_fuelIdAPI=="a95")
+        return 8;
+    if(a_fuelIdAPI=="a95_premium")
+        return 0;
+    if(a_fuelIdAPI=="a98")
+        return 0;
+    if(a_fuelIdAPI=="a98_premium")
+        return 0;
+    if(a_fuelIdAPI=="a100")
+        return 0;
+    if(a_fuelIdAPI=="a100_premium")
+        return 0;
+    if(a_fuelIdAPI=="propane")
+        return 14;
+    if(a_fuelIdAPI=="metan")
+        return 0;
+    return 0;
 }
 
 QString PostRequestHandler::newIngredientHandler(QString post)

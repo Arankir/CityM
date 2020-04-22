@@ -1,10 +1,8 @@
 #include "requestprocessing.h"
 
-RequestProcessing::RequestProcessing(qintptr a_socket_id, QSqlDatabase*  a_db, QString a_apiKey, QString a_bazeUrl): _socket_id(a_socket_id),_db(a_db){
+RequestProcessing::RequestProcessing(qintptr a_socket_id, QSqlDatabase*  a_db, QString a_apiKey, QString a_bazeUrl): _socket_id(a_socket_id),_db(a_db),_apiKey(a_apiKey),_bazeUrl(a_bazeUrl){
     qDebug() << "client "+ QString::number(a_socket_id) +" connected";
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
-    _apiKey=a_apiKey;
-    _bazeUrl=a_bazeUrl;
 }
 
 void RequestProcessing::run(){
@@ -13,9 +11,8 @@ void RequestProcessing::run(){
     _socket->waitForReadyRead(500);
     Responce();
     _socket->waitForBytesWritten(500);
-    //Socket_->disconnectFromHost();
+    //_socket->disconnectFromHost();
     _socket->close();
-    _socket->deleteLater();
     delete _socket;
 }
 
@@ -68,7 +65,6 @@ void RequestProcessing::PostRequest(){
         _socket->write("HTTP/1.1 404 \r\n\r\nBad request");
     }
     else {
-        response ="HTTP/1.1 200 OK \r\nContent-Type: application/json\r\n\r\n" + response;
         _socket->write(response.toLocal8Bit());
     }
 }
