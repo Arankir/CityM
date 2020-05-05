@@ -31,6 +31,10 @@ public:
     QString updateByWhereHandler(QString post);
 private slots:
     int GetFuelID(QString a_fuelIdAPI);
+    int ConformityPrice(QString fuel, QString price, QString price1, QString price2, QString price3, QString price4, QString price5, QString price6, QString price7, QString price8, QString price9,
+                        QString price10, QString price11, QString price12, QString price13);
+    void SmashData(QString data, int* sideAdress, int* nozzle, int* trkFuelCode, int* trkVCode);
+    void SmashMoneyData(QJsonObject data, int* requestTotalPriceDB, int* requestVolumeDB, int* requestUnitPriceDB, int* moneyTakenDB, int* fullTankDB);
 private:
     QSqlDatabase* DB_;
     Request* Request_;
