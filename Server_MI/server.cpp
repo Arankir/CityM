@@ -12,6 +12,7 @@ Server::Server(QObject* parent): QTcpServer (parent), ThreadPool(new QThreadPool
             while(!settings.atEnd()){
                 setting << QString::fromLocal8Bit(settings.readLine()).remove("\r\n").remove("\n");
             }
+            settings.close();
         } else
             qDebug()<<"Error: setting file is already open";
     } else
@@ -52,6 +53,7 @@ void Server::SendFuel(){
             while(!requests.atEnd()){
                 VCodes << QString::fromLocal8Bit(requests.readLine()).remove("\r\n").remove("\n");
             }
+            requests.close();
         } else
             qDebug()<<"Error: requests file is already open";
     } else
@@ -66,7 +68,11 @@ void Server::SendFuel(){
         }
         case 10:{
             QNetworkRequest request(QUrl(_bazeUrl+"/api/order/completed"));
-            QString("apikey="+_apiKey+"&orderId="+query->value(2).toString()+"&litre="+query->value(4).toString().replace(",",".")+"&extendedOrderId="+id+"&extendedDate="+QDateTime::fromString(query->value(6).toString(),"yyyy-MM-dd hh:mm:ss.zzz").toString("dd.MM.yyyy HH:mm:ss")).toLocal8Bit();
+            _manager->post(request,QString("apikey="+_apiKey+
+                                           "&orderId="+query->value(2).toString()+
+                                           "&litre="+query->value(4).toString().replace(",",".")+
+                                           "&extendedOrderId="+query->value(2).toString()+
+                                           "&extendedDate="+QDateTime::fromString(query->value(6).toString(),"yyyy-MM-dd hh:mm:ss.zzz").toString("dd.MM.yyyy HH:mm:ss")).toLocal8Bit());
             //litre – кол-во пролитых литров, указывается как double с разделителем точка
             //extendedOrderId – идентификатор заказа в АСУ сети
             //extendedDate – дата по которой АСУ строит отчет для сверки, формат dd.MM.yyyy HH:mm:ss

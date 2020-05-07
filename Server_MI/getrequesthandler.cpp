@@ -57,7 +57,10 @@ QString GetRequestHandler::stationHandler(){
             if(QFile::exists("Setting.txt")){
                 QFile settings("Setting.txt");
                 if (settings.open(QIODevice::ReadOnly)){
-                    setting << QString::fromLocal8Bit(settings.readAll()).split("\r\n");
+                    while(!settings.atEnd()){
+                        setting << QString::fromLocal8Bit(settings.readLine()).remove("\r\n").remove("\n");
+                    }
+                    settings.close();
                 } else
                     qDebug()<<"Error: setting file is already open";
             } else
@@ -80,11 +83,10 @@ QString GetRequestHandler::stationHandler(){
             QJsonObject Columns;
             //FuelNames
             QJsonArray FuelNames;
-            int ind=1;
             bool FuelsInc[13]={0,0,0,0,0,0,0,0,0,0,0,0,0};
             QSqlQuery* q2 = new QSqlQuery(*_db);
             q2->exec("SELECT d.AGZSName,d.VCode,c.ColumnNumber,c.diesel,c.diesel_premium,c.a80,c.a92,c.a92_premium,c.a95,c.a95_premium,c.a98,c.a98_premium, "
-                     "c.a100,c.a100_premium,c.propane,c.metan "
+                     "c.a100,c.a100_premium,c.propane,c.metan, c.SideAdress, c.Nozzle, c.TrkFuelCode, c.TrkVCode "
                      "FROM [agzs].[dbo].[PR_AGZSColumnsData] c INNER JOIN [agzs].[dbo].PR_AGZSData d ON d.VCode = c.Link WHERE (((d.VCode)="+q->value(2).toString()+")) order by c.ColumnNumber asc");
             while (q2->next()) {
                 QJsonObject Column;
@@ -219,8 +221,7 @@ QString GetRequestHandler::stationHandler(){
                         FuelsInc[12]=true;
                     }
                 }
-                Columns[QString::number(ind)]=Column;
-                ind++;
+                Columns[QString::number(q2->value(16).toInt()*100000+q2->value(17).toInt()*10000+q2->value(18).toInt()*1000+q2->value(19).toInt())]=Column;
             }
             delete q2;
             AGZS["Columns"]=Columns;
@@ -353,17 +354,20 @@ QString GetRequestHandler::pingHandler(QString a_station, QString a_column){
             if(QFile::exists("Setting.txt")){
                 QFile settings("Setting.txt");
                 if (settings.open(QIODevice::ReadOnly)){
-                    setting << QString::fromLocal8Bit(settings.readAll()).split("\r\n");
+                    while(!settings.atEnd()){
+                        setting << QString::fromLocal8Bit(settings.readLine()).remove("\r\n").remove("\n");
+                    }
+                    settings.close();
                 } else
                     qDebug()<<"Error: setting file is already open";
             } else
                 qDebug()<<"Error: setting file not found";
             dbLocal.setDatabaseName(QString("DRIVER={SQL Server};SERVER=%1;DATABASE=%2;Persist Security Info=true;uid=%3;pwd=%4").arg(q->value(8).toString(),setting[1],setting[2],q->value(9).toString()));
             if(dbLocal.open()){
-                AGZS["Enable"] = "true";
+                return "1";
             }
             else {
-                AGZS["Enable"] = "false";
+                return "0";
             }
         }
     }

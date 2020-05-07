@@ -38,9 +38,15 @@ void RequestProcessing::GetRequest(){
         response=handler.stationHandler();
     if(_request->GetPath()=="/fuelup/v2/price?apikey="+_apiKey)
         response=handler.priceHandler();
-    if(_request->GetPath().indexOf("/fuelup/v2/ping?apikey="+_apiKey)>-1)
+    if(_request->GetPath().indexOf("/fuelup/v2/ping?apikey="+_apiKey)>-1){
         response=handler.pingHandler(_request->GetPath().mid(_request->GetPath().indexOf("&stationId=")+11,_request->GetPath().indexOf("&stationId=")+11-_request->GetPath().indexOf("&columnId=")),
                                      _request->GetPath().mid(_request->GetPath().indexOf("&columnId=")));
+        if(response==1){
+            response="1";
+        } else {
+            response="";
+        }
+    }
     // /fuelup/v2/station?apikey={apikey}
     // /fuelup/v2/price?apikey={apikey}
     // /fuelup/v2/ping?apikey={apikey}&stationId={stationId}&columnId={columnId}
